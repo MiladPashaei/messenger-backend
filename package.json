@@ -1,0 +1,26 @@
+{
+  "name": "messenger-backend",
+  "version": "1.0.0",
+  "description": "simple backend that depends on express and socket io to providing basic services for messenger app, purpose of this project is making react beginners face real-world scenarios",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "chat",
+    "express",
+    "jwt",
+    "socket-io",
+    "node-js"
+  ],
+  "author": "Milad Pashaei",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.0",
+    "socket.io": "^4.6.0"
+  }
+}
