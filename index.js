@@ -4,7 +4,6 @@ const cors = require('cors')
 app.use(cors())
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const jwt = require('jsonwebtoken');
 
 /*
 structure of messages is 
@@ -47,7 +46,7 @@ const users = {
   "user3" : "1245",
 }
 
-const secretKey = 'your_secret_key';
+let activeUser = "";
 
 app.use(express.json());
 
@@ -67,47 +66,34 @@ app.post('/register',(req, res) => {
         },
       ]
     }
-    const token = jwt.sign({ username }, secretKey, { expiresIn: '1d' });
-    res.status(201).json({token, message: "Username successfully Created!"})
+    res.status(201).json({ message: "Username successfully Created!"})
   }
 })
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  // Check if user exists and password is correct
-  const user = users.find((user) => user.username === username && user.password === password);
+  const user = users.hasOwnProperty(username) && users[username] === password;
   if (!user) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
-
-  // Create JWT token
-  const token = jwt.sign({ username }, secretKey, { expiresIn: '1d' });
+  activeUser = username;
   let initialChat = [];
+  
   if (messages.hasOwnProperty(username)){
     Object.keys(messages[username]).forEach(key=>{
       initialChat.push({username: key, lastMessage: messages[username][key][0]})
     })
   }
-  res.json({ token, initialChat });
+  res.json({ initialChat });
 });
 
 io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
-
-  if (!token) {
-    return next(new Error('Authentication error'));
-  }
-
-  // Verify JWT token
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
+    if(activeUser === "") {
       return next(new Error('Authentication error'));
     }
-
-    socket.user = decoded.username;
+    socket.user = activeUser;
     next();
-  });
 });
 
 io.on('connection', (socket) => {
